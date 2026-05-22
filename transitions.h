@@ -45,7 +45,7 @@ static void freeIMG(IMG *img) {
 
 static IMG *generateIMG(IMG *I1, IMG *I2, int f) {
     if (I1->h != I2->h || I1->w != I2->w) {
-        perror("[generateIMG()] Reference Images have different sizes.\n");
+        printf("[generateIMG()] Reference Images have different sizes.\n");
         return NULL;
     }
     IMG *nextI = IMG_new(I1->h, I1->w);
@@ -80,7 +80,7 @@ static IMG *ppmToIMG(FILE *f) {
     char header[100];
     if (!fgets(header, sizeof(header), f)) return NULL;
     if (strncmp(header, "P6", 2) != 0) {
-        perror("[ppmToIMG()] Erro: file not a PPM P6.\n");
+        printf("[ppmToIMG()] Erro: file not a PPM P6.\n");
         return NULL;
     }
 
@@ -97,14 +97,14 @@ static IMG *ppmToIMG(FILE *f) {
     return img;
 }
 
-static void createPpmFile(FILE *file, IMG *img) {
+static int createPpmFile(FILE *file, IMG *img) {
     if (!file) {
-        perror("[createPpmFile()] file handle is NULL.\n");
-        return;
+        printf("[createPpmFile()] file handle is NULL.\n");
+        return 1;
     }
     if (!img) {
-        perror("[createPpmFile()] IMG Object is NULL.\n");
-        return;
+        printf("[createPpmFile()] IMG Object is NULL.\n");
+        return 1;
     }
     fprintf(file, "P6\n%d %d %d\n", img->w, img->h, 255);
     for (int i=0; i<img->h; i++) {
@@ -112,13 +112,17 @@ static void createPpmFile(FILE *file, IMG *img) {
             fwrite(&(img->pixels[i][j]), sizeof(PIXEL), 1, file);
         }
     }
+    return 0;
 }
 
-static int createTransition(IMG *start, IMG *end) {
+static int createTransition(IMG *start, IMG *end, int annotations=0) {
     for (int i=0; i<FRAMES; i++) {
         char newFileName[100];
         sprintf(newFileName, "transition-img-%d.ppm", i);
-        printf("Creating %s\n", newFileName);
+        
+        if (annotations)
+            printf("Creating %s\n", newFileName);
+        
         FILE *newImgFile = fopen(newFileName, "wb");
 
         IMG *tempIMG = generateIMG(start, end, i);
