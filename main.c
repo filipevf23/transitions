@@ -3,11 +3,10 @@
 int main(int args, char *argv []) {
 
     if (args < 3) {
-        perror("Two few arguments :(\n");
+        printf("Two few arguments :(\n");
         for (int i=0; i<args; i++) {
-            if (i>0) printf(", ");
-            printf("%s", argv[i]);
-        }  
+            printf("%s\n", argv[i]);
+        }
         return 1;
     } 
 
